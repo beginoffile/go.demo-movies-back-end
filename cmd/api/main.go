@@ -1,13 +1,13 @@
 package main
 
 import (
+	"backend/internal/repository"
+	"backend/internal/repository/dbrepo"
 	"context"
 	"flag"
 	"fmt"
 	"log"
 	"net/http"
-
-	"github.com/jackc/pgx/v5"
 )
 
 const port = 8080
@@ -15,7 +15,7 @@ const port = 8080
 type application struct {
 	DNS    string
 	Domain string
-	DB     *pgx.Conn
+	DB     repository.DatabaseRepo
 }
 
 func main() {
@@ -32,12 +32,11 @@ func main() {
 		log.Fatal(err)
 	}
 
-	app.DB = conn
-	defer app.DB.Close(context.Background())
+	app.DB = &dbrepo.PostgresDBRepo{DB: conn}
+
+	defer app.DB.Connection().Close(context.Background())
 
 	log.Println("Starting application on port ", port)
-
-	// http.HandleFunc("/", Hello)
 
 	//start a web server
 	err = http.ListenAndServe(fmt.Sprintf(":%d", port), app.routes())

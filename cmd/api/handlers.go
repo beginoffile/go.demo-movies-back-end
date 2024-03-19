@@ -1,11 +1,9 @@
 package main
 
 import (
-	"backend/internal/models"
 	"encoding/json"
 	"fmt"
 	"net/http"
-	"time"
 )
 
 func (app *application) Home(w http.ResponseWriter, r *http.Request) {
@@ -29,37 +27,43 @@ func (app *application) Home(w http.ResponseWriter, r *http.Request) {
 }
 
 func (app *application) AllMovies(w http.ResponseWriter, r *http.Request) {
-	var movies []models.Movie
+	// var movies []models.Movie
 
-	rd, _ := time.Parse("2006-01-02", "1986-03-07")
+	// rd, _ := time.Parse("2006-01-02", "1986-03-07")
 
-	highlander := models.Movie{
-		ID:          1,
-		Title:       "HaightLander",
-		ReleaseDate: rd,
-		MPAARating:  "R",
-		Runtime:     116,
-		Description: "A Very nice movie",
-		CreateAt:    time.Now(),
-		UpdatedAt:   time.Now(),
+	// highlander := models.Movie{
+	// 	ID:          1,
+	// 	Title:       "HaightLander",
+	// 	ReleaseDate: rd,
+	// 	MPAARating:  "R",
+	// 	Runtime:     116,
+	// 	Description: "A Very nice movie",
+	// 	CreateAt:    time.Now(),
+	// 	UpdatedAt:   time.Now(),
+	// }
+
+	// movies = append(movies, highlander)
+
+	// rd, _ = time.Parse("2006-01-02", "1981-06-12")
+
+	// rota := models.Movie{
+	// 	ID:          2,
+	// 	Title:       "Raiders of the last Ark",
+	// 	ReleaseDate: rd,
+	// 	MPAARating:  "PG-13",
+	// 	Runtime:     115,
+	// 	Description: "Another A Very nice movie",
+	// 	CreateAt:    time.Now(),
+	// 	UpdatedAt:   time.Now(),
+	// }
+
+	// movies = append(movies, rota)
+
+	movies, err := app.DB.AllMovies()
+	if err != nil {
+		fmt.Println(err)
+		return
 	}
-
-	movies = append(movies, highlander)
-
-	rd, _ = time.Parse("2006-01-02", "1981-06-12")
-
-	rota := models.Movie{
-		ID:          2,
-		Title:       "Raiders of the last Ark",
-		ReleaseDate: rd,
-		MPAARating:  "PG-13",
-		Runtime:     115,
-		Description: "Another A Very nice movie",
-		CreateAt:    time.Now(),
-		UpdatedAt:   time.Now(),
-	}
-
-	movies = append(movies, rota)
 
 	out, err := json.Marshal(movies)
 	if err != nil {
