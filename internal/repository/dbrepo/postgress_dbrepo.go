@@ -3,7 +3,6 @@ package dbrepo
 import (
 	"backend/internal/models"
 	"context"
-	"fmt"
 	"time"
 
 	"github.com/jackc/pgx/v5"
@@ -47,6 +46,7 @@ func (m *PostgresDBRepo) AllMovies() ([]*models.Movie, error) {
 			&movie.ID,
 			&movie.Title,
 			&movie.ReleaseDate,
+			&movie.Runtime,
 			&movie.MPAARating,
 			&movie.Description,
 			&movie.Image,
@@ -57,11 +57,71 @@ func (m *PostgresDBRepo) AllMovies() ([]*models.Movie, error) {
 			return nil, err
 		}
 
-		fmt.Println(movie)
-
 		movies = append(movies, &movie)
 	}
 
 	return movies, nil
+
+}
+
+func (m *PostgresDBRepo) GetUserByEmail(email string) (*models.User, error) {
+	ctx, cancel := context.WithTimeout(context.Background(), dbTimeout)
+
+	defer cancel()
+
+	query := `select id, email, first_name, last_name, password, created_at, updated_at
+	from users
+	Where email = $1`
+
+	var user models.User
+
+	row := m.DB.QueryRow(ctx, query, email)
+
+	err := row.Scan(
+		&user.ID,
+		&user.Email,
+		&user.FirstName,
+		&user.LastName,
+		&user.Password,
+		&user.CreateAt,
+		&user.UpdatedAt,
+	)
+
+	if err != nil {
+		return nil, err
+	}
+
+	return &user, nil
+
+}
+
+func (m *PostgresDBRepo) GetUserByID(id int) (*models.User, error) {
+	ctx, cancel := context.WithTimeout(context.Background(), dbTimeout)
+
+	defer cancel()
+
+	query := `select id, email, first_name, last_name, password, created_at, updated_at
+	from users
+	Where id = $1`
+
+	var user models.User
+
+	row := m.DB.QueryRow(ctx, query, id)
+
+	err := row.Scan(
+		&user.ID,
+		&user.Email,
+		&user.FirstName,
+		&user.LastName,
+		&user.Password,
+		&user.CreateAt,
+		&user.UpdatedAt,
+	)
+
+	if err != nil {
+		return nil, err
+	}
+
+	return &user, nil
 
 }
