@@ -15,6 +15,7 @@ func (app *application) routes() http.Handler {
 	mux.Use(middleware.Recoverer)
 	mux.Use(app.enableCORS)
 
+	// public routes
 	mux.Get("/", app.Home)
 
 	mux.Post("/authenticate", app.authenticate)
@@ -25,6 +26,7 @@ func (app *application) routes() http.Handler {
 
 	mux.Get("/movies", app.AllMovies)
 
+	// private routes
 	mux.Route("/admin", func(mux chi.Router) {
 		mux.Use(app.authRequired)
 

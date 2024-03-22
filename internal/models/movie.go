@@ -12,4 +12,14 @@ type Movie struct {
 	Image       string    `json:"image"`
 	CreateAt    time.Time `json:"-"`
 	UpdatedAt   time.Time `json:"-"`
+	Genres      []*Genre  `json:"genres,omitempty"`
+	GenresArray []int     `json:"genres_array,omitempty"`
+}
+
+type Genre struct {
+	ID        int       `json:"ID"`
+	Genre     string    `json:"genre"`
+	Checked   bool      `json:"checked"`
+	CreateAt  time.Time `json:"-"`
+	UpdatedAt time.Time `json:"-"`
 }
