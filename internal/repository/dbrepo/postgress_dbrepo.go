@@ -70,7 +70,7 @@ func (m *PostgresDBRepo) OneMovie(id int) (*models.Movie, error) {
 
 	defer cancel()
 
-	query := `select id, title, release_date, runtime, mpaa_rating, description, coalesce(image,''), create_at, updated_at	
+	query := `select id, title, release_date, runtime, mpaa_rating, description, coalesce(image,''), created_at, updated_at	
 	from movies
 	Where id = $1`
 
@@ -99,7 +99,8 @@ func (m *PostgresDBRepo) OneMovie(id int) (*models.Movie, error) {
 	from movies_genres t1
 		Inner Join genres t2
 		   On t2.id = t1.genre_id
-	Where t1.movie_id = $1`
+	Where t1.movie_id = $1
+	order by t2.genre`
 
 	rows, err := m.DB.Query(ctx, query, id)
 	if err != nil && err != sql.ErrNoRows {
@@ -281,5 +282,42 @@ func (m *PostgresDBRepo) GetUserByID(id int) (*models.User, error) {
 	}
 
 	return &user, nil
+
+}
+
+func (m *PostgresDBRepo) AllGenres() ([]*models.Genre, error) {
+	ctx, cancel := context.WithTimeout(context.Background(), dbTimeout)
+
+	defer cancel()
+
+	query := `select t1.id, t1.genre, t1.created_at, t1.updated_at
+	from genres t1		
+	Order by genre`
+
+	rows, err := m.DB.Query(ctx, query)
+
+	if err != nil {
+		return nil, err
+	}
+
+	defer rows.Close()
+
+	var allGenres []*models.Genre
+
+	for rows.Next() {
+		var g models.Genre
+		err := rows.Scan(
+			&g.ID,
+			&g.Genre,
+			&g.CreateAt,
+			&g.UpdatedAt,
+		)
+		if err != nil {
+			return nil, err
+		}
+		allGenres = append(allGenres, &g)
+	}
+
+	return allGenres, nil
 
 }
