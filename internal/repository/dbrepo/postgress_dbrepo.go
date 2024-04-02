@@ -353,3 +353,29 @@ func (m *PostgresDBRepo) InsertMovie(movie models.Movie) (int, error) {
 	return newID, nil
 
 }
+
+func (m *PostgresDBRepo) UpdateMovieGenres(id int, genReIDs []int) error {
+	ctx, cancel := context.WithTimeout(context.Background(), dbTimeout)
+
+	defer cancel()
+
+	stmt := `delete from  movies_genres
+	Where movie_id = $1`
+
+	_, err := m.DB.Exec(ctx, stmt, id)
+	if err != nil {
+		return err
+	}
+
+	for _, n := range genReIDs {
+		stmt := `insert into movies_genres(movie_id, genre_id) values ($1, $2)`
+		_, err := m.DB.Exec(ctx, stmt, id, n)
+		if err != nil {
+			return err
+		}
+
+	}
+
+	return nil
+
+}
