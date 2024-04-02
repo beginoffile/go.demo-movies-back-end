@@ -135,7 +135,7 @@ func (m *PostgresDBRepo) OneMovieForEdit(id int) (*models.Movie, []*models.Genre
 
 	defer cancel()
 
-	query := `select id, title, release_date, runtime, mpaa_rating, description, coalesce(image,''), create_at, updated_at	
+	query := `select id, title, release_date, runtime, mpaa_rating, description, coalesce(image,''), created_at, updated_at	
 	from movies
 	Where id = $1`
 

@@ -302,7 +302,7 @@ func (app *application) getPoster(movie models.Movie) models.Movie {
 	type TheMovieDB struct {
 		Page    int `json:"page"`
 		Results []struct {
-			PosterPath string `json:"poster_path`
+			PosterPath string `json:"poster_path"`
 		} `json:"results"`
 		TotalPages int `json:"total_pages"`
 	}

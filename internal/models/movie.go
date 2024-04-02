@@ -17,7 +17,7 @@ type Movie struct {
 }
 
 type Genre struct {
-	ID        int       `json:"ID"`
+	ID        int       `json:"id"`
 	Genre     string    `json:"genre"`
 	Checked   bool      `json:"checked"`
 	CreateAt  time.Time `json:"-"`
