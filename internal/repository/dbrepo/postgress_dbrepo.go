@@ -4,6 +4,7 @@ import (
 	"backend/internal/models"
 	"context"
 	"database/sql"
+	"fmt"
 	"time"
 
 	"github.com/jackc/pgx/v5"
@@ -19,17 +20,27 @@ func (m *PostgresDBRepo) Connection() *pgx.Conn {
 	return m.DB
 }
 
-func (m *PostgresDBRepo) AllMovies() ([]*models.Movie, error) {
+func (m *PostgresDBRepo) AllMovies(genre ...int) ([]*models.Movie, error) {
 
 	ctx, cancel := context.WithTimeout(context.Background(), dbTimeout)
 
 	defer cancel()
 
-	query := `
-	Select id, title, release_date, runtime, mpaa_rating, description, coalesce(image,''), created_at, updated_at
-	From movies t1
+	where := ""
+
+	if len(genre) > 0 {
+		where = fmt.Sprintf(`Where exists(select t2.Id               
+			From movies_genres t2
+				  Where t2.movie_id = t1.id
+			        And t2.genre_id  = %d)`, genre[0])
+	}
+
+	query := fmt.Sprintf(`
+	Select t1.id, t1.title, t1.release_date, t1.runtime, t1.mpaa_rating, t1.description, coalesce(t1.image,''), t1.created_at, t1.updated_at
+	From movies t1		
+	%s
 	Order by t1.title
-		`
+		`, where)
 	rows, err := m.DB.Query(ctx, query)
 
 	if err != nil {
@@ -317,6 +328,7 @@ func (m *PostgresDBRepo) AllGenres() ([]*models.Genre, error) {
 		}
 		allGenres = append(allGenres, &g)
 	}
+	fmt.Println("Genres...", time.Now())
 
 	return allGenres, nil
 
@@ -359,16 +371,15 @@ func (m *PostgresDBRepo) UpdateMovie(movie models.Movie) error {
 
 	defer cancel()
 
-	stmt := `Update t1
+	stmt := `Update movies
 	Set title 		 = $1,
 		description  = $2,
 		release_date = $3,
 		runtime 	 = $4,
 		mpaa_rating  = $5,
 		updated_at   = $6,
-		image		 = $7		
-	From movies t1	
-	Where id = $1`
+		image		 = $7
+	Where id = $8`
 
 	_, err := m.DB.Exec(ctx, stmt,
 		movie.Title,
@@ -409,6 +420,23 @@ func (m *PostgresDBRepo) UpdateMovieGenres(id int, genReIDs []int) error {
 			return err
 		}
 
+	}
+
+	return nil
+
+}
+
+func (m *PostgresDBRepo) DeleteMovie(id int) error {
+	ctx, cancel := context.WithTimeout(context.Background(), dbTimeout)
+
+	defer cancel()
+
+	stmt := `delete from  movies
+	Where id = $1`
+
+	_, err := m.DB.Exec(ctx, stmt, id)
+	if err != nil {
+		return err
 	}
 
 	return nil

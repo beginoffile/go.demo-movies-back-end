@@ -28,6 +28,8 @@ func (app *application) routes() http.Handler {
 
 	mux.Get("/movies/{id}", app.GetMovie)
 	mux.Get("/genres", app.AllGenres)
+	mux.Get("/movies/genres/{id}", app.allMoviesByGenre)
+	mux.Post("/graph", app.MoviesGraphQL)
 
 	// private routes
 	mux.Route("/admin", func(mux chi.Router) {
@@ -36,7 +38,8 @@ func (app *application) routes() http.Handler {
 		mux.Get("/movies", app.MovieCatalog)
 		mux.Get("/movies/{id}", app.MovieForEdit)
 		mux.Put("/movies/0", app.InsertMovie)
-		mux.Patch("/movies/0", app.UpdateMovie)
+		mux.Patch("/movies/{id}", app.UpdateMovie)
+		mux.Delete("/movies/{id}", app.DeleteMovie)
 
 	})
 

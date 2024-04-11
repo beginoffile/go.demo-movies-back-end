@@ -8,7 +8,7 @@ import (
 
 type DatabaseRepo interface {
 	Connection() *pgx.Conn
-	AllMovies() ([]*models.Movie, error)
+	AllMovies(genre ...int) ([]*models.Movie, error)
 	GetUserByEmail(email string) (*models.User, error)
 	GetUserByID(id int) (*models.User, error)
 	OneMovie(id int) (*models.Movie, error)
@@ -17,4 +17,5 @@ type DatabaseRepo interface {
 	InsertMovie(movie models.Movie) (int, error)
 	UpdateMovieGenres(id int, genReIDs []int) error
 	UpdateMovie(movie models.Movie) error
+	DeleteMovie(id int) error
 }
